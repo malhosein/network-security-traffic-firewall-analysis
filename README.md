@@ -1,211 +1,284 @@
-# Network Security Traffic & Firewall Analysis
+# 🔐 Network Security Traffic & Firewall Analysis
 
-A hands-on network security project focused on analyzing network scanning techniques, TCP/IP traffic behavior, packet-level communication, and the impact of firewall filtering.
+> **Hands-on network security project** exploring network reconnaissance, TCP/IP packet behavior, traffic analysis, and the impact of host-based firewall filtering in a controlled virtual environment.
 
-The project uses two Kali Linux virtual machines in a controlled environment. One system acts as the scanner using Nmap/Zenmap, while the second system acts as the target, running an Apache web service, capturing traffic with Wireshark, and applying UFW firewall rules.
+This project uses **two Kali Linux virtual machines** to analyze how different network scanning techniques behave at the packet level.
 
-## Project Objectives
+**Kali Linux I** acts as the **scanner** using **Nmap/Zenmap**, while **Kali Linux II** acts as the **target**, running an **Apache web service**, capturing traffic with **Wireshark**, and applying **UFW firewall rules**.
 
-The main objective of this project is to understand what actually happens at the packet level during network scanning and how firewall rules affect network communication.
+---
 
-The project focuses on:
+## 🎯 Project Objectives
 
-- Performing and comparing different Nmap scanning techniques.
-- Observing TCP/IP packet behavior using Wireshark.
-- Understanding TCP flags and connection behavior.
-- Identifying differences between open, closed, and filtered ports.
-- Analyzing network behavior before and after firewall activation.
-- Connecting network scanning results with the actual packets observed on the network.
+The main objective of this project is to understand **what actually happens at the packet level during network scanning** and how firewall policies affect network communication and reconnaissance results.
 
-## Environment
+### The project focuses on:
 
-The project was implemented using a virtualized network environment with two Kali Linux systems:
+- **Performing and comparing multiple Nmap scanning techniques**
+- Observing **TCP/IP packet behavior** using Wireshark
+- Understanding **TCP flags and connection behavior**
+- Identifying differences between **open, closed, and filtered ports**
+- Analyzing network behavior **before and after firewall activation**
+- Connecting **Nmap scan results** with the actual packets observed on the network
 
-```text
-Kali Linux I
-Nmap / Zenmap Scanner
-        |
-        |  Virtual Network
-        |
-        v
-Kali Linux II
-Apache Web Server
-UFW Firewall
-Wireshark Packet Capture
-```
+---
 
-## Technologies & Tools
+## 🖥️ Environment
 
-- Kali Linux
-- Nmap
-- Zenmap
-- Wireshark
-- UFW Firewall
-- Apache Web Server
-- TCP/IP
-- Virtualization
+The project was implemented using a **virtualized network environment** with two Kali Linux systems.
 
-## Network Scanning
+### Project Architecture
 
-Multiple Nmap scanning techniques were used to observe how different probes interact with the target system.
+![Project Architecture](screenshots/01-environment-setup/project-architecture.png)
 
-### TCP SYN Scan (-sS)
+The architecture separates the testing environment into two systems:
 
-Used to analyze half-open TCP connection behavior without completing the full TCP handshake.
+**Kali Linux I — Scanner**  
+Uses **Nmap/Zenmap** to generate different types of network scans and reconnaissance traffic.
 
-### TCP Connect Scan (-sT)
+**Kali Linux II — Target**  
+Runs **Apache**, **UFW**, and **Wireshark** for service hosting, firewall testing, packet capture, and traffic analysis.
 
-Used to establish a complete TCP connection and observe the full connection process.
+---
 
-### Xmas Scan (-sX)
+## 🛠️ Technologies & Tools
 
-Used to analyze responses to TCP packets containing FIN, PSH, and URG flags.
+| Technology | Purpose |
+|---|---|
+| **Kali Linux** | Scanner and target operating systems |
+| **Nmap** | Network and port scanning |
+| **Zenmap** | Graphical interface for Nmap scans |
+| **Wireshark** | Packet capture and traffic analysis |
+| **UFW Firewall** | Host-based firewall configuration and filtering |
+| **Apache Web Server** | HTTP service used during testing |
+| **TCP/IP** | Network communication and packet analysis |
+| **Virtualization** | Controlled virtual testing environment |
 
-### ACK Scan (-sA)
+---
 
-Used to analyze firewall filtering behavior and determine whether traffic is being filtered.
+## 🔎 Network Scanning
 
-### UDP Scan (-sU)
+Multiple **Nmap scanning techniques** were used to observe how different probes interact with the target system.
 
-Used to examine UDP services and compare UDP scanning behavior with TCP-based scanning.
+### TCP SYN Scan (`-sS`)
 
-### Network Scanning Results
+Used to analyze **half-open TCP connection behavior** without completing the full TCP handshake.
 
-The following screenshots show representative Nmap/Zenmap scan results collected from the target system.
+### TCP Connect Scan (`-sT`)
 
-#### TCP SYN Scan (-sS)
+Used to establish a **complete TCP connection** and observe the full connection process.
+
+### Xmas Scan (`-sX`)
+
+Used to analyze responses to TCP packets containing the **FIN, PSH, and URG flags**.
+
+### ACK Scan (`-sA`)
+
+Used to analyze **firewall filtering behavior** and determine whether traffic is being filtered.
+
+### UDP Scan (`-sU`)
+
+Used to examine **UDP services** and compare UDP scanning behavior with TCP-based scanning.
+
+---
+
+## 📊 Network Scanning Results
+
+The following screenshots show representative **Nmap/Zenmap scan results** collected from the target system.
+
+### TCP SYN Scan (`-sS`)
 
 ![TCP SYN Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20020233.png)
 
-The SYN scan identified TCP port 80 as open, demonstrating the behavior of a half-open TCP scan against the target.
+**Observation:** TCP port **80** was identified as **open**, demonstrating the behavior of a half-open TCP scan against the target.
 
-#### TCP Connect Scan (-sT)
+### TCP Connect Scan (`-sT`)
 
 ![TCP Connect Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20021509.png)
 
-The TCP Connect scan completed the connection process and also identified TCP port 80 as open.
+**Observation:** The TCP Connect scan completed the connection process and also identified TCP port **80** as **open**.
 
-#### Xmas Scan (-sX)
+### Xmas Scan (`-sX`)
 
 ![Xmas Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20021808.png)
 
-The Xmas scan used FIN, PSH, and URG TCP flags, with port 80 reported as open|filtered.
+**Observation:** The scan used **FIN, PSH, and URG** TCP flags, with port **80** reported as **open|filtered**.
 
-#### ACK Scan (-sA)
+### ACK Scan (`-sA`)
 
 ![ACK Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20022158.png)
 
-The ACK scan reported the tested ports as unfiltered, providing a baseline for later comparison with firewall filtering.
+**Observation:** The tested ports were reported as **unfiltered**, providing a baseline for comparison with later firewall filtering.
 
-## Packet Analysis with Wireshark
+---
 
-Wireshark was used on the target system to capture and inspect traffic generated during the network scans.
+## 📡 Packet Analysis with Wireshark
 
-The analysis included:
+**Wireshark** was used on the target system to capture and inspect traffic generated during the network scans.
 
-- TCP SYN packets
-- SYN/ACK responses
-- RST and RST/ACK packets
+### Traffic analyzed included:
+
+- **TCP SYN** packets
+- **SYN/ACK** responses
+- **RST and RST/ACK** packets
 - TCP connection behavior
 - Traffic on specific ports
-- Differences in packet responses under different firewall conditions
+- Packet-response differences under different firewall conditions
 
-Example Wireshark display filters used during the analysis:
+### Wireshark Display Filters
 
 ```text
 tcp.port == 20
 tcp.port == 80
 ```
 
-### Packet Analysis Results
+These filters were used to isolate and inspect TCP traffic associated with specific ports during the analysis.
 
-The following Wireshark captures were used to inspect packet-level behavior generated during the network scans.
+---
 
-#### TCP Port Analysis
+## 🔬 Packet Analysis Results
+
+The following Wireshark captures provide packet-level visibility into traffic generated during the scanning process.
+
+### TCP Port Analysis
 
 ![TCP Port Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20023749.png)
 
-This capture shows TCP traffic involving port 20, including SYN probes and RST/ACK responses between the scanner and target.
+**Observation:** The capture shows TCP traffic involving **port 20**, including SYN probes and RST/ACK responses between the scanner and target.
 
-#### TCP Response Analysis
+### TCP Response Analysis
 
 ![TCP Response Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20015204.png)
 
-This capture provides additional visibility into TCP responses observed during the scanning process, including RST/ACK behavior.
+**Observation:** The capture provides additional visibility into TCP responses observed during the scanning process, including **RST/ACK behavior**.
 
-#### UDP and ICMP Analysis
+### UDP and ICMP Analysis
 
 ![UDP and ICMP Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20022623.png)
 
-This capture shows UDP scan traffic together with ICMP Destination Unreachable responses, illustrating packet-level behavior associated with UDP port scanning.
+**Observation:** The capture shows **UDP scan traffic together with ICMP Destination Unreachable responses**, illustrating packet-level behavior associated with UDP port scanning.
 
-## Firewall Testing
+---
 
-UFW was used to study how firewall rules affect network scanning and packet communication.
+## 🛡️ Firewall Testing
 
-The testing process included:
+**UFW (Uncomplicated Firewall)** was used on the target system to study how firewall rules affect network scanning and packet communication.
 
-1. Performing network scans with the firewall disabled.
-2. Capturing the generated traffic using Wireshark.
-3. Enabling UFW firewall protection.
-4. Allowing HTTP traffic on TCP port 80.
-5. Repeating the network scans.
-6. Comparing scan results and packet behavior before and after firewall activation.
+### Testing Methodology
 
-### Firewall Testing Results
+**1. Baseline Testing**  
+Perform network scans with the firewall disabled.
 
-The following screenshots document the firewall configuration and its impact on network scanning behavior.
+**2. Packet Capture**  
+Capture and inspect the generated network traffic using Wireshark.
 
-#### UFW Configuration
+**3. Firewall Activation**  
+Enable UFW protection on the target system.
+
+**4. HTTP Rule Configuration**  
+Allow incoming **TCP port 80** traffic for the Apache web service.
+
+**5. Re-Scanning**  
+Repeat the network scans after firewall activation.
+
+**6. Comparison**  
+Compare scan results and packet behavior **before and after firewall filtering**.
+
+---
+
+## 🔥 Firewall Testing Results
+
+### UFW Configuration
 
 ![UFW Configuration](screenshots/04-firewall-testing/Screenshot%202024-10-29%20025047.png)
 
-UFW was enabled on the target system and TCP port 80 was explicitly allowed to maintain access to the Apache web service.
+**Configuration:** UFW was enabled on the target system and **TCP port 80** was explicitly allowed to maintain access to the Apache web service.
 
-#### Active Firewall Rules
+### Active Firewall Rules
 
 ![UFW Active Rules](screenshots/04-firewall-testing/Screenshot%202024-10-29%20025229.png)
 
-The firewall status confirms that UFW is active and HTTP traffic on TCP port 80 is allowed.
+**Verification:** The firewall status confirms that **UFW is active** and HTTP traffic on **TCP port 80** is allowed.
 
-#### Scan Behavior After Firewall Activation
+### Scan Behavior After Firewall Activation
 
 ![Nmap After Firewall](screenshots/04-firewall-testing/Screenshot%202024-10-29%20141056.png)
 
-After firewall activation, the TCP Connect scan identified port 80 as open while 999 TCP ports were reported as filtered due to no response. This demonstrates the effect of firewall filtering on network reconnaissance.
+**Result:** After firewall activation, the TCP Connect scan identified **port 80 as open**, while **999 TCP ports were reported as filtered (`no-response`)**.
 
-## Key Observations
+This demonstrates how firewall filtering can change the visibility and response behavior of network services during reconnaissance.
 
-The project demonstrated how different scanning techniques generate different packet patterns and responses.
+---
 
-By comparing Nmap results with Wireshark captures, it was possible to observe how port states and firewall filtering are reflected directly in network traffic.
+## ⚖️ Before vs. After Firewall
 
-Firewall activation changed how the target responded to network probes, demonstrating the relationship between firewall policies, packet responses, and filtered port behavior.
+One of the main goals of the project was to compare network behavior **before and after UFW firewall activation**.
 
-## Key Takeaways
+| Test Condition | Observed Behavior |
+|---|---|
+| **Baseline / Before Firewall Filtering** | Scan probes generated observable network responses depending on the scan type and port state |
+| **After UFW Activation** | Firewall filtering changed how the target responded to network probes |
+| **TCP Port 80** | Remained accessible because HTTP traffic was explicitly allowed |
+| **TCP Connect Scan After UFW** | Port 80 remained open while **999 TCP ports were reported as filtered (`no-response`)** |
 
-This project strengthened my practical understanding of:
+> **Key Result:** Firewall policy directly affected how the target appeared during network reconnaissance while preserving access to the explicitly allowed HTTP service.
 
-- TCP/IP communication
-- Network scanning and reconnaissance
-- TCP flags and connection establishment
-- Packet capture and traffic analysis
-- Port states and service behavior
-- Host-based firewall configuration
-- Network security testing
+---
 
-It also helped connect these practical observations with networking concepts reinforced through my CCNA certification.
+## 🔬 Key Observations
 
-## Project Documentation
+The project demonstrated that different network scanning techniques produce **different packet patterns and responses**.
 
-Additional project documentation and evidence are available in the repository:
+By comparing **Nmap results with Wireshark packet captures**, it was possible to connect reported port states with the actual network traffic generated during each scan.
 
-- [Commands & Filters](commands.md)
-- [Environment Setup](screenshots/01-environment-setup/)
-- [Network Scanning](screenshots/02-network-scanning/)
-- [Packet Analysis](screenshots/03-packet-analysis/)
-- [Firewall Testing](screenshots/04-firewall-testing/)
+Firewall activation also changed how the target responded to network probes, demonstrating the relationship between:
 
-> All network scanning and traffic analysis were performed in a controlled virtual environment for learning and testing purposes.
->
-> 
+**Firewall Policies → Packet Responses → Port States → Reconnaissance Results**
+
+---
+
+## 💡 Skills Demonstrated
+
+Through this project, I applied and strengthened practical skills in:
+
+- **TCP/IP networking**
+- **Network scanning and reconnaissance**
+- **Nmap and Zenmap**
+- **Wireshark packet analysis**
+- **TCP flags and connection behavior**
+- **Network traffic analysis**
+- **Port and service analysis**
+- **Linux networking**
+- **Host-based firewall configuration**
+- **Network security testing**
+- **Technical documentation**
+
+---
+
+## 🎓 Key Takeaways
+
+This project strengthened my practical understanding of how **network scanning, TCP/IP communication, packet analysis, and firewall filtering interact within a real testing environment**.
+
+Rather than relying only on scan results, analyzing the generated traffic with Wireshark made it possible to observe the underlying packet behavior and better understand why different port states and responses appear during network reconnaissance.
+
+It also helped connect these practical observations with networking concepts reinforced through my **Cisco Certified Network Associate (CCNA)** certification.
+
+---
+
+## 📂 Project Documentation
+
+Additional technical documentation and supporting evidence are available in the repository:
+
+- 📄 [**Commands & Filters**](commands.md)
+- 🖥️ [**Environment Setup**](screenshots/01-environment-setup/)
+- 🔎 [**Network Scanning**](screenshots/02-network-scanning/)
+- 📡 [**Packet Analysis**](screenshots/03-packet-analysis/)
+- 🛡️ [**Firewall Testing**](screenshots/04-firewall-testing/)
+
+---
+
+> ### ⚠️ Responsible Testing
+> All network scanning and traffic analysis documented in this project were performed in a **controlled virtual environment** for learning and testing purposes.
+
+
+
