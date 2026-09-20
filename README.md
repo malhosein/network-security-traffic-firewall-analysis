@@ -47,21 +47,26 @@ Wireshark Packet Capture
 
 ## Network Scanning
 
-Multiple Nmap scanning techniques were used to observe how different probes interact with the target system:
+Multiple Nmap scanning techniques were used to observe how different probes interact with the target system.
 
 ### TCP SYN Scan (-sS)
+
 Used to analyze half-open TCP connection behavior without completing the full TCP handshake.
 
 ### TCP Connect Scan (-sT)
+
 Used to establish a complete TCP connection and observe the full connection process.
 
 ### Xmas Scan (-sX)
+
 Used to analyze responses to TCP packets containing FIN, PSH, and URG flags.
 
 ### ACK Scan (-sA)
+
 Used to analyze firewall filtering behavior and determine whether traffic is being filtered.
 
 ### UDP Scan (-sU)
+
 Used to examine UDP services and compare UDP scanning behavior with TCP-based scanning.
 
 ### Network Scanning Results
@@ -118,19 +123,19 @@ The following Wireshark captures were used to inspect packet-level behavior gene
 
 #### TCP Port Analysis
 
-![TCP Port Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20023749(1)(1).png)
+![TCP Port Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20023749.png)
 
 This capture shows TCP traffic involving port 20, including SYN probes and RST/ACK responses between the scanner and target.
 
 #### TCP Response Analysis
 
-![TCP Response Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20015204(3).png)
+![TCP Response Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20015204.png)
 
 This capture provides additional visibility into TCP responses observed during the scanning process, including RST/ACK behavior.
 
 #### UDP and ICMP Analysis
 
-![UDP and ICMP Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20022623(2).png)
+![UDP and ICMP Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20022623.png)
 
 This capture shows UDP scan traffic together with ICMP Destination Unreachable responses, illustrating packet-level behavior associated with UDP port scanning.
 
@@ -202,7 +207,5 @@ Additional project documentation and evidence are available in the repository:
 - [Firewall Testing](screenshots/04-firewall-testing/)
 
 > All network scanning and traffic analysis were performed in a controlled virtual environment for learning and testing purposes.
-
-
-
-
+>
+> 
