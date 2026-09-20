@@ -1,72 +1,98 @@
-# Commands & Filters
+# 🧰 Commands & Filters
 
-This document contains the main network scanning options, firewall commands, and Wireshark display filters used throughout the project.
+> Technical reference for the **Nmap scanning options, UFW firewall commands, and Wireshark display filters** used throughout the Network Security Traffic & Firewall Analysis project.
 
-## Nmap / Zenmap Scanning
+This document provides a concise reference to the main commands and filters used during the testing process.
 
-The following Nmap scan types were used to analyze different network and port behaviors.
+---
 
-### TCP SYN Scan
+## 🔎 Nmap / Zenmap Scanning
+
+Multiple Nmap scan types were used to observe different TCP/UDP behaviors and compare how the target responded under different firewall conditions.
+
+### TCP SYN Scan (`-sS`)
 
 ```bash
 sudo nmap -sS <target-ip>
 ```
 
-Performs a TCP SYN (half-open) scan without completing the full TCP three-way handshake.
+Performs a **TCP SYN (half-open) scan** without completing the full TCP three-way handshake.
 
-### TCP Connect Scan
+**Purpose:** Observe SYN-based scanning behavior and identify port states based on target responses.
+
+---
+
+### TCP Connect Scan (`-sT`)
 
 ```bash
 nmap -sT <target-ip>
 ```
 
-Performs a full TCP connection using the operating system's connection mechanism.
+Performs a **full TCP connection** using the operating system's connection mechanism.
 
-### Xmas Scan
+**Purpose:** Observe complete TCP connection behavior and compare the results with half-open scanning.
+
+---
+
+### Xmas Scan (`-sX`)
 
 ```bash
 sudo nmap -sX <target-ip>
 ```
 
-Sends TCP packets with the FIN, PSH, and URG flags set to analyze how the target responds.
+Sends TCP packets with the **FIN, PSH, and URG flags** set.
 
-### ACK Scan
+**Purpose:** Analyze how the target responds to specially flagged TCP probes.
+
+---
+
+### ACK Scan (`-sA`)
 
 ```bash
 sudo nmap -sA <target-ip>
 ```
 
-Used to analyze firewall filtering behavior rather than directly determining whether a port is open.
+Uses TCP ACK packets to help analyze **firewall filtering behavior**.
 
-### UDP Scan
+**Purpose:** Determine whether tested traffic appears **filtered or unfiltered** rather than directly determining whether a service is open.
+
+---
+
+### UDP Scan (`-sU`)
 
 ```bash
 sudo nmap -sU <target-ip>
 ```
 
-Scans UDP ports and helps analyze services that do not use TCP connections.
+Performs a scan against **UDP ports**.
+
+**Purpose:** Examine UDP scanning behavior and compare it with TCP-based reconnaissance.
 
 ---
 
-## UFW Firewall
+## 🛡️ UFW Firewall Configuration
 
-UFW was used on the target system to compare network behavior with and without firewall filtering.
+**UFW (Uncomplicated Firewall)** was configured on the target system to compare network behavior before and after firewall filtering.
 
-### Disable the Firewall
+### Disable UFW
 
 ```bash
 sudo ufw disable
 ```
 
-Used during the baseline testing phase before firewall filtering was applied.
+Used during the **baseline testing phase** before firewall filtering was applied.
 
-### Enable the Firewall
+---
+
+### Enable UFW
 
 ```bash
 sudo ufw enable
 ```
 
-Activates UFW firewall protection.
+Activates UFW firewall protection on the target system.
+
+---
 
 ### Allow HTTP Traffic
 
@@ -74,7 +100,9 @@ Activates UFW firewall protection.
 sudo ufw allow 80/tcp
 ```
 
-Allows incoming TCP traffic to the Apache web service on port 80.
+Allows incoming **TCP traffic on port 80**, maintaining access to the Apache web service while firewall filtering is active.
+
+---
 
 ### Check Firewall Status
 
@@ -86,9 +114,9 @@ Displays the current UFW status and configured firewall rules.
 
 ---
 
-## Wireshark Display Filters
+## 📡 Wireshark Display Filters
 
-Wireshark was used to inspect traffic generated during the network scans.
+Wireshark was used on the target system to capture and analyze traffic generated during the network scans.
 
 ### TCP Port 20
 
@@ -96,7 +124,7 @@ Wireshark was used to inspect traffic generated during the network scans.
 tcp.port == 20
 ```
 
-Displays TCP packets where port 20 is either the source or destination port.
+Displays TCP packets where **port 20** is either the source or destination port.
 
 ### TCP Port 80
 
@@ -104,23 +132,118 @@ Displays TCP packets where port 20 is either the source or destination port.
 tcp.port == 80
 ```
 
-Displays HTTP-related TCP traffic involving port 80.
+Displays TCP traffic where **port 80** is either the source or destination port.
+
+This filter was used to analyze traffic associated with the **Apache HTTP service** and observe TCP connection behavior.
 
 ---
 
-## Testing Workflow
+## 🔄 Testing Workflow
 
-The general testing workflow used in the project was:
+The project followed a structured testing process:
 
-1. Prepare the scanner and target Kali Linux systems.
-2. Disable UFW to establish baseline network behavior.
-3. Run the different Nmap/Zenmap scans against the target.
-4. Capture and inspect the generated traffic using Wireshark.
-5. Enable UFW and configure the TCP port 80 rule.
-6. Repeat the network scans.
-7. Compare the scan results and packet behavior before and after firewall filtering.
+### 1. Prepare the Environment
+
+Set up the **scanner and target Kali Linux systems** within the virtualized testing environment.
+
+### 2. Establish a Baseline
+
+Disable UFW to observe network behavior before firewall filtering.
+
+```bash
+sudo ufw disable
+```
+
+### 3. Perform Network Scans
+
+Run the different Nmap/Zenmap scan types against the target system:
+
+```text
+-sS   TCP SYN Scan
+-sT   TCP Connect Scan
+-sX   Xmas Scan
+-sA   ACK Scan
+-sU   UDP Scan
+```
+
+### 4. Capture Network Traffic
+
+Use **Wireshark** on the target system to capture and inspect traffic generated by the scans.
+
+Example filters:
+
+```text
+tcp.port == 20
+tcp.port == 80
+```
+
+### 5. Enable Firewall Protection
+
+Enable UFW and allow the Apache HTTP service:
+
+```bash
+sudo ufw enable
+sudo ufw allow 80/tcp
+```
+
+### 6. Verify Firewall Configuration
+
+```bash
+sudo ufw status
+```
+
+Confirm that UFW is active and that **TCP port 80** is allowed.
+
+### 7. Repeat the Scans
+
+Repeat the network scans after firewall activation.
+
+### 8. Compare the Results
+
+Compare:
+
+- **Nmap/Zenmap scan results**
+- **Wireshark packet captures**
+- **Port states**
+- **Packet responses**
+- Network behavior **before and after firewall filtering**
+
+---
+
+## 🔬 Analysis Approach
+
+The project combines three perspectives when analyzing network behavior:
+
+**Nmap / Zenmap → Scan Results**
+
+Shows how the scanner interprets the state of the target ports.
+
+**Wireshark → Packet-Level Evidence**
+
+Shows the actual packets and responses exchanged between the systems.
+
+**UFW → Firewall Behavior**
+
+Provides a controlled way to observe how firewall rules affect packet responses and network reconnaissance.
+
+Together, these tools make it possible to connect:
+
+> **Scan Technique → Network Traffic → Packet Response → Port State → Firewall Behavior**
+
+---
+
+## 📂 Related Documentation
+
+- [🏠 **Project README**](README.md)
+- [🖥️ **Environment Setup**](screenshots/01-environment-setup/)
+- [🔎 **Network Scanning Evidence**](screenshots/02-network-scanning/)
+- [📡 **Packet Analysis Evidence**](screenshots/03-packet-analysis/)
+- [🛡️ **Firewall Testing Evidence**](screenshots/04-firewall-testing/)
+
+---
+
+> ### ⚠️ Testing Environment
+> All commands, scans, and traffic analysis documented in this project were performed in a **controlled virtual environment** for learning and testing purposes.
 
 > Replace `<target-ip>` with the IP address of the target system when reproducing the scans.
 
-
-> 
