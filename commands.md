@@ -235,10 +235,10 @@ Together, these tools make it possible to connect:
 ## 📂 Related Documentation
 
 - [🏠 **Project README**](README.md)
-- [🖥️ **Environment Setup**](screenshots/01-environment-setup/)
-- [🔎 **Network Scanning Evidence**](screenshots/02-network-scanning/)
-- [📡 **Packet Analysis Evidence**](screenshots/03-packet-analysis/)
-- [🛡️ **Firewall Testing Evidence**](screenshots/04-firewall-testing/)
+- [🖥️ **Environment Setup**](evidence/01-environment-setup/)
+- [🔎 **Network Scanning Evidence**](evidence/02-network-scanning/)
+- [📡 **Packet Analysis Evidence**](evidence/03-packet-analysis/)
+- [🛡️ **Firewall Testing Evidence**](evidence/04-firewall-testing/)
 
 ---
 
