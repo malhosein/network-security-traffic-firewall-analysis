@@ -8,6 +8,18 @@ This project uses **two Kali Linux virtual machines** to analyze how different n
 
 ---
 
+## 📌 Project Summary
+
+| | |
+|---|---|
+| **Environment** | Two Kali Linux virtual machines |
+| **Focus** | Network Scanning, Packet Analysis & Firewall Testing |
+| **Core Tools** | Nmap, Zenmap, Wireshark, UFW & Apache |
+| **Testing Approach** | Scan → Capture → Analyze → Apply Firewall → Re-scan → Compare |
+| **Key Finding** | TCP port 80 remained accessible while firewall filtering changed the visibility of other TCP ports |
+
+---
+
 ## 🎯 Project Objectives
 
 The main objective of this project is to understand **what actually happens at the packet level during network scanning** and how firewall policies affect network communication and reconnaissance results.
@@ -79,6 +91,23 @@ Used to analyze **firewall filtering behavior** and determine whether traffic is
 ### UDP Scan (`-sU`)
 
 Used to examine **UDP services** and compare UDP scanning behavior with TCP-based scanning.
+
+---
+
+## 🧪 Test Matrix
+
+The following matrix summarizes the primary scan types and the representative behavior documented during testing.
+
+| Scan / Test | Purpose | Observed Behavior |
+|---|---|---|
+| **TCP SYN (`-sS`)** | Half-open TCP scanning | TCP port **80** identified as **open** |
+| **TCP Connect (`-sT`)** | Full TCP connection | TCP port **80** identified as **open** |
+| **Xmas (`-sX`)** | FIN/PSH/URG TCP probing | TCP port **80** reported as **open\|filtered** |
+| **ACK (`-sA`)** | Firewall filtering analysis | Tested ports reported as **unfiltered** during baseline testing |
+| **UDP (`-sU`)** | UDP reconnaissance | UDP traffic was captured and analyzed with Wireshark |
+| **TCP Connect after UFW** | Compare behavior after firewall activation | Port **80 remained open** while **999 TCP ports were filtered (`no-response`)** |
+
+> **Testing principle:** Scan results were compared with packet-level evidence in Wireshark to better understand how the observed port states related to actual network responses.
 
 ---
 
@@ -233,7 +262,7 @@ By comparing **Nmap results with Wireshark packet captures**, it was possible to
 
 Firewall activation also changed how the target responded to network probes, demonstrating the relationship between:
 
-**Firewall Policies → Packet Responses → Port States → Reconnaissance Results**
+> **Firewall Policies → Packet Responses → Port States → Reconnaissance Results**
 
 ---
 
@@ -265,6 +294,25 @@ It also helped connect these practical observations with networking concepts rei
 
 ---
 
+## 🗂️ Repository Structure
+
+```text
+network-security-traffic-firewall-analysis/
+│
+├── README.md
+├── commands.md
+│
+└── screenshots/
+    ├── 01-environment-setup/
+    ├── 02-network-scanning/
+    ├── 03-packet-analysis/
+    └── 04-firewall-testing/
+```
+
+The repository separates **project documentation, technical commands, and supporting evidence** to keep the analysis organized and easy to navigate.
+
+---
+
 ## 📂 Project Documentation
 
 Additional technical documentation and supporting evidence are available in the repository:
@@ -279,6 +327,5 @@ Additional technical documentation and supporting evidence are available in the 
 
 > ### ⚠️ Responsible Testing
 > All network scanning and traffic analysis documented in this project were performed in a **controlled virtual environment** for learning and testing purposes.
-
 
 
