@@ -64,6 +64,34 @@ Used to analyze firewall filtering behavior and determine whether traffic is bei
 ### UDP Scan (-sU)
 Used to examine UDP services and compare UDP scanning behavior with TCP-based scanning.
 
+### Network Scanning Results
+
+The following screenshots show representative Nmap/Zenmap scan results collected from the target system.
+
+#### TCP SYN Scan (-sS)
+
+![TCP SYN Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20020233.png)
+
+The SYN scan identified TCP port 80 as open, demonstrating the behavior of a half-open TCP scan against the target.
+
+#### TCP Connect Scan (-sT)
+
+![TCP Connect Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20021509.png)
+
+The TCP Connect scan completed the connection process and also identified TCP port 80 as open.
+
+#### Xmas Scan (-sX)
+
+![Xmas Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20021808.png)
+
+The Xmas scan used FIN, PSH, and URG TCP flags, with port 80 reported as open|filtered.
+
+#### ACK Scan (-sA)
+
+![ACK Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20022158.png)
+
+The ACK scan reported the tested ports as unfiltered, providing a baseline for later comparison with firewall filtering.
+
 ## Packet Analysis with Wireshark
 
 Wireshark was used on the target system to capture and inspect traffic generated during the network scans.
@@ -84,6 +112,28 @@ tcp.port == 20
 tcp.port == 80
 ```
 
+### Packet Analysis Results
+
+The following Wireshark captures were used to inspect packet-level behavior generated during the network scans.
+
+#### TCP Port Analysis
+
+![TCP Port Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20023749(1)(1).png)
+
+This capture shows TCP traffic involving port 20, including SYN probes and RST/ACK responses between the scanner and target.
+
+#### TCP Response Analysis
+
+![TCP Response Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20015204(3).png)
+
+This capture provides additional visibility into TCP responses observed during the scanning process, including RST/ACK behavior.
+
+#### UDP and ICMP Analysis
+
+![UDP and ICMP Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20022623(2).png)
+
+This capture shows UDP scan traffic together with ICMP Destination Unreachable responses, illustrating packet-level behavior associated with UDP port scanning.
+
 ## Firewall Testing
 
 UFW was used to study how firewall rules affect network scanning and packet communication.
@@ -96,6 +146,28 @@ The testing process included:
 4. Allowing HTTP traffic on TCP port 80.
 5. Repeating the network scans.
 6. Comparing scan results and packet behavior before and after firewall activation.
+
+### Firewall Testing Results
+
+The following screenshots document the firewall configuration and its impact on network scanning behavior.
+
+#### UFW Configuration
+
+![UFW Configuration](screenshots/04-firewall-testing/Screenshot%202024-10-29%20025047.png)
+
+UFW was enabled on the target system and TCP port 80 was explicitly allowed to maintain access to the Apache web service.
+
+#### Active Firewall Rules
+
+![UFW Active Rules](screenshots/04-firewall-testing/Screenshot%202024-10-29%20025229.png)
+
+The firewall status confirms that UFW is active and HTTP traffic on TCP port 80 is allowed.
+
+#### Scan Behavior After Firewall Activation
+
+![Nmap After Firewall](screenshots/04-firewall-testing/Screenshot%202024-10-29%20141056.png)
+
+After firewall activation, the TCP Connect scan identified port 80 as open while 999 TCP ports were reported as filtered due to no response. This demonstrates the effect of firewall filtering on network reconnaissance.
 
 ## Key Observations
 
@@ -121,6 +193,16 @@ It also helped connect these practical observations with networking concepts rei
 
 ## Project Documentation
 
-The repository includes the commands, technical observations, and screenshots captured during the project.
+Additional project documentation and evidence are available in the repository:
+
+- [Commands & Filters](commands.md)
+- [Environment Setup](screenshots/01-environment-setup/)
+- [Network Scanning](screenshots/02-network-scanning/)
+- [Packet Analysis](screenshots/03-packet-analysis/)
+- [Firewall Testing](screenshots/04-firewall-testing/)
 
 > All network scanning and traffic analysis were performed in a controlled virtual environment for learning and testing purposes.
+
+
+
+
