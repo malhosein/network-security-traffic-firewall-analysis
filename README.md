@@ -39,6 +39,12 @@ The main objective of this project is to understand **what actually happens at t
 
 The project was implemented using a **virtualized network environment** with two Kali Linux systems.
 
+### Virtualized Testing Environment
+
+![VirtualBox Kali Environment](screenshots/01-environment-setup/virtualbox-kali-environment.png)
+
+The testing environment consists of two Kali Linux virtual machines running in **Oracle VirtualBox**.
+
 ### Project Architecture
 
 ![Project Architecture](screenshots/01-environment-setup/project-architecture.png)
@@ -64,7 +70,7 @@ Runs **Apache**, **UFW**, and **Wireshark** for service hosting, firewall testin
 | **UFW Firewall** | Host-based firewall configuration and filtering |
 | **Apache Web Server** | HTTP service used during testing |
 | **TCP/IP** | Network communication and packet analysis |
-| **Virtualization** | Controlled virtual testing environment |
+| **Oracle VirtualBox** | Virtualized testing environment |
 
 ---
 
@@ -117,25 +123,25 @@ The following screenshots show representative **Nmap/Zenmap scan results** colle
 
 ### TCP SYN Scan (`-sS`)
 
-![TCP SYN Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20020233.png)
+![TCP SYN Scan](screenshots/02-network-scanning/tcp-syn-scan.png)
 
 **Observation:** TCP port **80** was identified as **open**, demonstrating the behavior of a half-open TCP scan against the target.
 
 ### TCP Connect Scan (`-sT`)
 
-![TCP Connect Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20021509.png)
+![TCP Connect Scan](screenshots/02-network-scanning/tcp-connect-scan.png)
 
 **Observation:** The TCP Connect scan completed the connection process and also identified TCP port **80** as **open**.
 
 ### Xmas Scan (`-sX`)
 
-![Xmas Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20021808.png)
+![Xmas Scan](screenshots/02-network-scanning/tcp-xmas-scan.png)
 
 **Observation:** The scan used **FIN, PSH, and URG** TCP flags, with port **80** reported as **open|filtered**.
 
 ### ACK Scan (`-sA`)
 
-![ACK Scan](screenshots/02-network-scanning/Screenshot%202024-10-29%20022158.png)
+![ACK Scan](screenshots/02-network-scanning/tcp-ack-scan.png)
 
 **Observation:** The tested ports were reported as **unfiltered**, providing a baseline for comparison with later firewall filtering.
 
@@ -148,11 +154,11 @@ The following screenshots show representative **Nmap/Zenmap scan results** colle
 ### Traffic analyzed included:
 
 - **TCP SYN** packets
-- **SYN/ACK** responses
-- **RST and RST/ACK** packets
-- TCP connection behavior
-- Traffic on specific ports
-- Packet-response differences under different firewall conditions
+- **RST and RST/ACK** responses
+- **FIN, PSH, and URG** TCP flags
+- TCP behavior on specific ports
+- **UDP** scan traffic
+- **ICMP Destination Unreachable** responses
 
 ### Wireshark Display Filters
 
@@ -161,7 +167,7 @@ tcp.port == 20
 tcp.port == 80
 ```
 
-These filters were used to isolate and inspect TCP traffic associated with specific ports during the analysis.
+These filters were used during the analysis to isolate and inspect TCP traffic associated with specific ports.
 
 ---
 
@@ -169,23 +175,19 @@ These filters were used to isolate and inspect TCP traffic associated with speci
 
 The following Wireshark captures provide packet-level visibility into traffic generated during the scanning process.
 
-### TCP Port Analysis
+### TCP Port 20 Packet Analysis
 
-![TCP Port Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20023749.png)
+![TCP Port 20 Packet Analysis](screenshots/03-packet-analysis/tcp-port-20-packet-analysis.png)
 
-**Observation:** The capture shows TCP traffic involving **port 20**, including SYN probes and RST/ACK responses between the scanner and target.
+**Observation:** The capture shows TCP traffic involving **port 20**, including **SYN probes**, **RST/ACK responses**, and packets using **FIN, PSH, and URG flags** between the scanner and target.
 
-### TCP Response Analysis
-
-![TCP Response Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20015204.png)
-
-**Observation:** The capture provides additional visibility into TCP responses observed during the scanning process, including **RST/ACK behavior**.
+This provides packet-level visibility into how the target responded to different TCP probing techniques.
 
 ### UDP and ICMP Analysis
 
-![UDP and ICMP Analysis](screenshots/03-packet-analysis/Screenshot%202024-10-29%20022623.png)
+![UDP and ICMP Analysis](screenshots/03-packet-analysis/udp-icmp-port-unreachable-analysis.png)
 
-**Observation:** The capture shows **UDP scan traffic together with ICMP Destination Unreachable responses**, illustrating packet-level behavior associated with UDP port scanning.
+**Observation:** The capture shows **UDP scan traffic together with ICMP Destination Unreachable (Port Unreachable) responses**, illustrating packet-level behavior associated with UDP port scanning.
 
 ---
 
@@ -219,23 +221,23 @@ Compare scan results and packet behavior **before and after firewall filtering**
 
 ### UFW Configuration
 
-![UFW Configuration](screenshots/04-firewall-testing/Screenshot%202024-10-29%20025047.png)
+![UFW Configuration](screenshots/04-firewall-testing/ufw-firewall-configuration.png)
 
-**Configuration:** UFW was enabled on the target system and **TCP port 80** was explicitly allowed to maintain access to the Apache web service.
+**Configuration:** UFW was initially inactive, then enabled on the target system. **TCP port 80** was explicitly allowed to maintain access to the Apache web service.
 
 ### Active Firewall Rules
 
-![UFW Active Rules](screenshots/04-firewall-testing/Screenshot%202024-10-29%20025229.png)
+![UFW Active Rules](screenshots/04-firewall-testing/ufw-active-firewall-rules.png)
 
-**Verification:** The firewall status confirms that **UFW is active** and HTTP traffic on **TCP port 80** is allowed.
+**Verification:** The firewall status confirms that **UFW is active** and TCP port **80** is allowed for both IPv4 and IPv6 traffic.
 
-### Scan Behavior After Firewall Activation
+### TCP Connect Scan After Firewall Activation
 
-![Nmap After Firewall](screenshots/04-firewall-testing/Screenshot%202024-10-29%20141056.png)
+![TCP Connect Scan After Firewall](screenshots/04-firewall-testing/tcp-connect-scan-after-firewall.png)
 
 **Result:** After firewall activation, the TCP Connect scan identified **port 80 as open**, while **999 TCP ports were reported as filtered (`no-response`)**.
 
-This demonstrates how firewall filtering can change the visibility and response behavior of network services during reconnaissance.
+This demonstrates how firewall filtering can change the visibility and response behavior of network services during reconnaissance while preserving access to an explicitly allowed service.
 
 ---
 
@@ -280,6 +282,7 @@ Through this project, I applied and strengthened practical skills in:
 - **Linux networking**
 - **Host-based firewall configuration**
 - **Network security testing**
+- **Virtualization**
 - **Technical documentation**
 
 ---
@@ -304,9 +307,23 @@ network-security-traffic-firewall-analysis/
 │
 └── screenshots/
     ├── 01-environment-setup/
+    │   ├── project-architecture.png
+    │   └── virtualbox-kali-environment.png
+    │
     ├── 02-network-scanning/
+    │   ├── tcp-ack-scan.png
+    │   ├── tcp-connect-scan.png
+    │   ├── tcp-syn-scan.png
+    │   └── tcp-xmas-scan.png
+    │
     ├── 03-packet-analysis/
+    │   ├── tcp-port-20-packet-analysis.png
+    │   └── udp-icmp-port-unreachable-analysis.png
+    │
     └── 04-firewall-testing/
+        ├── tcp-connect-scan-after-firewall.png
+        ├── ufw-active-firewall-rules.png
+        └── ufw-firewall-configuration.png
 ```
 
 The repository separates **project documentation, technical commands, and supporting evidence** to keep the analysis organized and easy to navigate.
@@ -327,5 +344,4 @@ Additional technical documentation and supporting evidence are available in the 
 
 > ### ⚠️ Responsible Testing
 > All network scanning and traffic analysis documented in this project were performed in a **controlled virtual environment** for learning and testing purposes.
-
 
