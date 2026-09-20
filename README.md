@@ -13,6 +13,8 @@ This project uses **two Kali Linux virtual machines** to analyze how different n
 | | |
 |---|---|
 | **Environment** | Two Kali Linux virtual machines |
+| **Scanner** | Kali Linux I — `10.0.2.4` |
+| **Target** | Kali Linux II — `10.0.2.12` |
 | **Focus** | Network Scanning, Packet Analysis & Firewall Testing |
 | **Core Tools** | Nmap, Zenmap, Wireshark, UFW & Apache |
 | **Testing Approach** | Scan → Capture → Analyze → Apply Firewall → Re-scan → Compare |
@@ -41,13 +43,13 @@ The project was implemented using a **virtualized network environment** with two
 
 ### Virtualized Testing Environment
 
-![VirtualBox Kali Environment](screenshots/01-environment-setup/virtualbox-kali-environment.png)
+![VirtualBox Kali Environment](evidence/01-environment-setup/virtualbox-kali-environment.png)
 
 The testing environment consists of two Kali Linux virtual machines running in **Oracle VirtualBox**.
 
 ### Project Architecture
 
-![Project Architecture](screenshots/01-environment-setup/project-architecture.png)
+![Project Architecture](evidence/01-environment-setup/project-architecture.png)
 
 The architecture separates the testing environment into two systems:
 
@@ -56,6 +58,30 @@ Uses **Nmap/Zenmap** to generate different types of network scans and reconnaiss
 
 **Kali Linux II — Target**  
 Runs **Apache**, **UFW**, and **Wireshark** for service hosting, firewall testing, packet capture, and traffic analysis.
+
+### Scanner Network Configuration
+
+![Kali Scanner Network Configuration](evidence/01-environment-setup/kali-scanner-network-configuration.png)
+
+**Kali Linux I** was configured as the scanner with IPv4 address **10.0.2.4**.
+
+### Target Network Configuration
+
+![Kali Target Network Configuration](evidence/01-environment-setup/kali-target-network-configuration.png)
+
+**Kali Linux II** was configured as the target with IPv4 address **10.0.2.12**.
+
+### Apache Web Server Verification
+
+![Apache Web Server Verification](evidence/01-environment-setup/apache-web-server-verification.png)
+
+The Apache web service was verified locally on the target system before network-based testing.
+
+### Remote Apache Access Verification
+
+![Apache Remote Access Verification](evidence/01-environment-setup/apache-remote-access-verification.png)
+
+The scanner successfully accessed the Apache web service hosted on the target at **10.0.2.12**, confirming network connectivity and HTTP service availability between the two systems.
 
 ---
 
@@ -102,7 +128,7 @@ Used to examine **UDP services** and compare UDP scanning behavior with TCP-base
 
 ## 🧪 Test Matrix
 
-The following matrix summarizes the primary scan types and the representative behavior documented during testing.
+The following matrix summarizes the primary scan types and representative behavior documented during testing.
 
 | Scan / Test | Purpose | Observed Behavior |
 |---|---|---|
@@ -110,7 +136,7 @@ The following matrix summarizes the primary scan types and the representative be
 | **TCP Connect (`-sT`)** | Full TCP connection | TCP port **80** identified as **open** |
 | **Xmas (`-sX`)** | FIN/PSH/URG TCP probing | TCP port **80** reported as **open\|filtered** |
 | **ACK (`-sA`)** | Firewall filtering analysis | Tested ports reported as **unfiltered** during baseline testing |
-| **UDP (`-sU`)** | UDP reconnaissance | UDP traffic was captured and analyzed with Wireshark |
+| **UDP (`-sU`)** | UDP reconnaissance | UDP traffic and ICMP responses were analyzed with Wireshark |
 | **TCP Connect after UFW** | Compare behavior after firewall activation | Port **80 remained open** while **999 TCP ports were filtered (`no-response`)** |
 
 > **Testing principle:** Scan results were compared with packet-level evidence in Wireshark to better understand how the observed port states related to actual network responses.
@@ -119,29 +145,29 @@ The following matrix summarizes the primary scan types and the representative be
 
 ## 📊 Network Scanning Results
 
-The following screenshots show representative **Nmap/Zenmap scan results** collected from the target system.
+The following screenshots show representative **Nmap/Zenmap scan results** collected while scanning the target system.
 
 ### TCP SYN Scan (`-sS`)
 
-![TCP SYN Scan](screenshots/02-network-scanning/tcp-syn-scan.png)
+![TCP SYN Scan](evidence/02-network-scanning/tcp-syn-scan.png)
 
 **Observation:** TCP port **80** was identified as **open**, demonstrating the behavior of a half-open TCP scan against the target.
 
 ### TCP Connect Scan (`-sT`)
 
-![TCP Connect Scan](screenshots/02-network-scanning/tcp-connect-scan.png)
+![TCP Connect Scan](evidence/02-network-scanning/tcp-connect-scan.png)
 
 **Observation:** The TCP Connect scan completed the connection process and also identified TCP port **80** as **open**.
 
 ### Xmas Scan (`-sX`)
 
-![Xmas Scan](screenshots/02-network-scanning/tcp-xmas-scan.png)
+![Xmas Scan](evidence/02-network-scanning/tcp-xmas-scan.png)
 
 **Observation:** The scan used **FIN, PSH, and URG** TCP flags, with port **80** reported as **open|filtered**.
 
 ### ACK Scan (`-sA`)
 
-![ACK Scan](screenshots/02-network-scanning/tcp-ack-scan.png)
+![ACK Scan](evidence/02-network-scanning/tcp-ack-scan.png)
 
 **Observation:** The tested ports were reported as **unfiltered**, providing a baseline for comparison with later firewall filtering.
 
@@ -154,6 +180,7 @@ The following screenshots show representative **Nmap/Zenmap scan results** colle
 ### Traffic analyzed included:
 
 - **TCP SYN** packets
+- **SYN/ACK** responses
 - **RST and RST/ACK** responses
 - **FIN, PSH, and URG** TCP flags
 - TCP behavior on specific ports
@@ -175,9 +202,23 @@ These filters were used during the analysis to isolate and inspect TCP traffic a
 
 The following Wireshark captures provide packet-level visibility into traffic generated during the scanning process.
 
+### TCP SYN Half-Open Analysis
+
+![TCP SYN Half-Open Analysis](evidence/03-packet-analysis/tcp-syn-half-open-analysis.png)
+
+**Observation:** The capture shows the scanner sending a **SYN** packet to TCP port **80**, the target responding with **SYN/ACK**, and the scanner responding with **RST** rather than completing the TCP three-way handshake.
+
+This demonstrates the packet-level behavior associated with a **TCP SYN half-open scan**.
+
+### Closed TCP Port Analysis
+
+![TCP Closed Port Analysis](evidence/03-packet-analysis/tcp-closed-port-analysis.png)
+
+**Observation:** SYN probes sent from the scanner to **TCP port 20** received **RST/ACK** responses from the target, demonstrating the packet behavior associated with a **closed TCP port**.
+
 ### TCP Port 20 Packet Analysis
 
-![TCP Port 20 Packet Analysis](screenshots/03-packet-analysis/tcp-port-20-packet-analysis.png)
+![TCP Port 20 Packet Analysis](evidence/03-packet-analysis/tcp-port-20-packet-analysis.png)
 
 **Observation:** The capture shows TCP traffic involving **port 20**, including **SYN probes**, **RST/ACK responses**, and packets using **FIN, PSH, and URG flags** between the scanner and target.
 
@@ -185,7 +226,7 @@ This provides packet-level visibility into how the target responded to different
 
 ### UDP and ICMP Analysis
 
-![UDP and ICMP Analysis](screenshots/03-packet-analysis/udp-icmp-port-unreachable-analysis.png)
+![UDP and ICMP Analysis](evidence/03-packet-analysis/udp-icmp-port-unreachable-analysis.png)
 
 **Observation:** The capture shows **UDP scan traffic together with ICMP Destination Unreachable (Port Unreachable) responses**, illustrating packet-level behavior associated with UDP port scanning.
 
@@ -221,23 +262,31 @@ Compare scan results and packet behavior **before and after firewall filtering**
 
 ### UFW Configuration
 
-![UFW Configuration](screenshots/04-firewall-testing/ufw-firewall-configuration.png)
+![UFW Configuration](evidence/04-firewall-testing/ufw-firewall-configuration.png)
 
 **Configuration:** UFW was initially inactive, then enabled on the target system. **TCP port 80** was explicitly allowed to maintain access to the Apache web service.
 
 ### Active Firewall Rules
 
-![UFW Active Rules](screenshots/04-firewall-testing/ufw-active-firewall-rules.png)
+![UFW Active Rules](evidence/04-firewall-testing/ufw-active-firewall-rules.png)
 
 **Verification:** The firewall status confirms that **UFW is active** and TCP port **80** is allowed for both IPv4 and IPv6 traffic.
 
 ### TCP Connect Scan After Firewall Activation
 
-![TCP Connect Scan After Firewall](screenshots/04-firewall-testing/tcp-connect-scan-after-firewall.png)
+![TCP Connect Scan After Firewall](evidence/04-firewall-testing/tcp-connect-scan-after-firewall.png)
 
 **Result:** After firewall activation, the TCP Connect scan identified **port 80 as open**, while **999 TCP ports were reported as filtered (`no-response`)**.
 
 This demonstrates how firewall filtering can change the visibility and response behavior of network services during reconnaissance while preserving access to an explicitly allowed service.
+
+### Firewall-Filtered SYN Analysis
+
+![Firewall Filtered SYN Analysis](evidence/04-firewall-testing/firewall-filtered-syn-analysis.png)
+
+**Observation:** SYN probes from the scanner are visible in the packet capture without corresponding TCP responses in the filtered view.
+
+This packet-level evidence is consistent with the filtering behavior observed after firewall activation, where probes to non-allowed ports did not receive the same responses seen during baseline testing.
 
 ---
 
@@ -260,11 +309,19 @@ One of the main goals of the project was to compare network behavior **before an
 
 The project demonstrated that different network scanning techniques produce **different packet patterns and responses**.
 
+Packet-level analysis provided several clear examples:
+
+- A **SYN → SYN/ACK → RST** sequence demonstrated half-open TCP SYN scanning behavior.
+- A **SYN → RST/ACK** response demonstrated closed TCP port behavior.
+- **FIN, PSH, and URG** packets showed the traffic generated by Xmas scanning.
+- **UDP traffic and ICMP Port Unreachable** responses demonstrated UDP scanning behavior.
+- Firewall activation changed the responses observed during network reconnaissance while TCP port **80** remained explicitly accessible.
+
 By comparing **Nmap results with Wireshark packet captures**, it was possible to connect reported port states with the actual network traffic generated during each scan.
 
-Firewall activation also changed how the target responded to network probes, demonstrating the relationship between:
+The analysis demonstrates the relationship between:
 
-> **Firewall Policies → Packet Responses → Port States → Reconnaissance Results**
+> **Scan Technique → Packet Behavior → Port State → Firewall Policy → Reconnaissance Result**
 
 ---
 
@@ -289,7 +346,7 @@ Through this project, I applied and strengthened practical skills in:
 
 ## 🎓 Key Takeaways
 
-This project strengthened my practical understanding of how **network scanning, TCP/IP communication, packet analysis, and firewall filtering interact within a real testing environment**.
+This project strengthened my practical understanding of how **network scanning, TCP/IP communication, packet analysis, and firewall filtering interact within a controlled testing environment**.
 
 Rather than relying only on scan results, analyzing the generated traffic with Wireshark made it possible to observe the underlying packet behavior and better understand why different port states and responses appear during network reconnaissance.
 
@@ -305,8 +362,13 @@ network-security-traffic-firewall-analysis/
 ├── README.md
 ├── commands.md
 │
-└── screenshots/
+└── evidence/
+    │
     ├── 01-environment-setup/
+    │   ├── apache-remote-access-verification.png
+    │   ├── apache-web-server-verification.png
+    │   ├── kali-scanner-network-configuration.png
+    │   ├── kali-target-network-configuration.png
     │   ├── project-architecture.png
     │   └── virtualbox-kali-environment.png
     │
@@ -317,16 +379,19 @@ network-security-traffic-firewall-analysis/
     │   └── tcp-xmas-scan.png
     │
     ├── 03-packet-analysis/
+    │   ├── tcp-closed-port-analysis.png
     │   ├── tcp-port-20-packet-analysis.png
+    │   ├── tcp-syn-half-open-analysis.png
     │   └── udp-icmp-port-unreachable-analysis.png
     │
     └── 04-firewall-testing/
+        ├── firewall-filtered-syn-analysis.png
         ├── tcp-connect-scan-after-firewall.png
         ├── ufw-active-firewall-rules.png
         └── ufw-firewall-configuration.png
 ```
 
-The repository separates **project documentation, technical commands, and supporting evidence** to keep the analysis organized and easy to navigate.
+The repository separates **project documentation, technical commands, and supporting technical evidence** to keep the project organized and easy to navigate.
 
 ---
 
@@ -335,10 +400,10 @@ The repository separates **project documentation, technical commands, and suppor
 Additional technical documentation and supporting evidence are available in the repository:
 
 - 📄 [**Commands & Filters**](commands.md)
-- 🖥️ [**Environment Setup**](screenshots/01-environment-setup/)
-- 🔎 [**Network Scanning**](screenshots/02-network-scanning/)
-- 📡 [**Packet Analysis**](screenshots/03-packet-analysis/)
-- 🛡️ [**Firewall Testing**](screenshots/04-firewall-testing/)
+- 🖥️ [**Environment Setup**](evidence/01-environment-setup/)
+- 🔎 [**Network Scanning**](evidence/02-network-scanning/)
+- 📡 [**Packet Analysis**](evidence/03-packet-analysis/)
+- 🛡️ [**Firewall Testing**](evidence/04-firewall-testing/)
 
 ---
 
